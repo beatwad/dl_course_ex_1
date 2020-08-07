@@ -1,7 +1,7 @@
 import numpy as np
 
 
-def check_gradient(f, x, delta=1e-5, tol = 1e-4):
+def check_gradient(f, x, delta=1e-5, tol=1e-4):
     '''
     Checks the implementation of analytical gradient by comparing
     it to numerical gradient using two-point formula
@@ -25,19 +25,21 @@ def check_gradient(f, x, delta=1e-5, tol = 1e-4):
 
     assert analytic_grad.shape == x.shape
     analytic_grad = analytic_grad.copy()
-
     # We will go through every dimension of x and compute numeric
     # derivative for it
     it = np.nditer(x, flags=['multi_index'], op_flags=['readwrite'])
     while not it.finished:
         ix = it.multi_index
+        x_p = x.copy()
+        x_p[ix] += delta
+        x_m = x.copy()
+        x_m[ix] -= delta
         analytic_grad_at_ix = analytic_grad[ix]
-        numeric_grad_at_ix = 0
+        numeric_grad_at_ix = (f(x_p)[0] - f(x_m)[0])/(2*delta)
 
-        # TODO compute value of numeric gradient of f to idx
         if not np.isclose(numeric_grad_at_ix, analytic_grad_at_ix, tol):
-            print("Gradients are different at %s. Analytic: %2.5f, Numeric: %2.5f" % (ix, analytic_grad_at_ix, numeric_grad_at_ix))
-            return False
+             print("Gradients are different at %s. Analytic: %2.5f, Numeric: %2.5f" % (ix, analytic_grad_at_ix, numeric_grad_at_ix))
+             return False
 
         it.iternext()
 
