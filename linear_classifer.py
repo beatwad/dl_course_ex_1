@@ -1,8 +1,20 @@
 import numpy as np
 
 
+def check_array_size(array):
+    """ Check if array has more than 1 dimension """
+    array_shape = array.shape
+    if len(array_shape) < 2:
+        return 0
+    if array_shape[0] < 2:
+        return 0
+    if array_shape[1] < 2:
+        return 0
+    return 1
+
+
 def softmax(predictions):
-    '''
+    """
     Computes probabilities from scores
 
     Arguments:
@@ -12,14 +24,15 @@ def softmax(predictions):
     Returns:
       probs, np array of the same shape as predictions - 
         probability for every class, 0..1
-    '''
-    # TODO implement softmax
-    # Your final implementation shouldn't have any loops
-    raise Exception("Not implemented!")
+    """
+
+    norm_predictions = predictions - np.amax(predictions, axis=1)[:, None]
+    exp_array = np.exp(norm_predictions)
+    return exp_array/np.sum(exp_array, axis=1)[:, None]
 
 
-def cross_entropy_loss(probs, target_index):
-    '''
+def cross_entropy_loss(probs, target_index, batch_size=1, num_classes=1):
+    """
     Computes cross-entropy loss
 
     Arguments:
@@ -27,17 +40,24 @@ def cross_entropy_loss(probs, target_index):
         probabilities for every class
       target_index: np array of int, shape is (1) or (batch_size) -
         index of the true class for given sample(s)
-
+      batch_size is a number of batches in probs array
     Returns:
       loss: single value
-    '''
-    # TODO implement cross-entropy
-    # Your final implementation shouldn't have any loops
-    raise Exception("Not implemented!")
+    """
+
+    mask_array = np.zeros((batch_size, num_classes), dtype=int)
+    # print(f'Probs\n{probs}')
+    # print(f'Target Index\n{target_index}')
+    for i in range(mask_array.shape[0]):
+        mask_array[i, target_index[i]] = 1
+    # print(f'Mask Array\n{mask_array}')
+    ce_loss = -np.sum(mask_array * np.log(probs), axis=1)
+    # print(f'CE_Loss\n{ce_loss}')
+    return np.average(ce_loss)
 
 
-def softmax_with_cross_entropy(predictions, target_index):
-    '''
+def softmax_with_cross_entropy(predictions, target_index, batch_size=1, num_classes=1):
+    """
     Computes softmax and cross-entropy loss for model predictions,
     including the gradient
 
@@ -50,11 +70,21 @@ def softmax_with_cross_entropy(predictions, target_index):
     Returns:
       loss, single value - cross-entropy loss
       dprediction, np array same shape as predictions - gradient of predictions by loss value
-    '''
-    # TODO implement softmax with cross-entropy
-    # Your final implementation shouldn't have any loops
-    raise Exception("Not implemented!")
+    """
 
+    probs = softmax(predictions)
+    # print(f'Probs\n{probs}')
+    loss = cross_entropy_loss(probs, target_index, batch_size, num_classes)
+    # print(f'CE Loss\n{loss}')
+    target_array = np.zeros((batch_size, num_classes), dtype=int)
+    # print(f'Target index\n{target_index}')
+
+    for i in range(target_array.shape[0]):
+        target_array[i, target_index[i]] = 1
+    # print(f'Target array\n{target_array}')
+
+    dprediction = probs - target_array
+    # print(f'Dprediction\n{dprediction}')
     return loss, dprediction
 
 

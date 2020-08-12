@@ -21,6 +21,7 @@ def check_gradient(f, x, delta=1e-5, tol=1e-4):
     
     orig_x = x.copy()
     fx, analytic_grad = f(x)
+    print(f'x\n{x}')
     assert np.all(np.isclose(orig_x, x, tol)), "Functions shouldn't modify input variables"
 
     assert analytic_grad.shape == x.shape
@@ -30,15 +31,20 @@ def check_gradient(f, x, delta=1e-5, tol=1e-4):
     it = np.nditer(x, flags=['multi_index'], op_flags=['readwrite'])
     while not it.finished:
         ix = it.multi_index
+        print(f'ix\n{ix}')
         x_p = x.copy()
         x_p[ix] += delta
+        print(f'x_p[ix[0]]\n{x_p[ix[0]]}')
         x_m = x.copy()
         x_m[ix] -= delta
         analytic_grad_at_ix = analytic_grad[ix]
+        print(f'f(x_p)\n{f(x_p)}')
+        print(f'f(x_m)\n{f(x_m)}')
         numeric_grad_at_ix = (f(x_p)[0] - f(x_m)[0])/(2*delta)
-
+        print(f'Numeric grad\n{numeric_grad_at_ix}')
         if not np.isclose(numeric_grad_at_ix, analytic_grad_at_ix, tol):
-             print("Gradients are different at %s. Analytic: %2.5f, Numeric: %2.5f" % (ix, analytic_grad_at_ix, numeric_grad_at_ix))
+             print("Gradients are different at %s. Analytic: %2.5f, Numeric: %2.5f" % (ix, analytic_grad_at_ix,
+                                                                                       numeric_grad_at_ix))
              return False
 
         it.iternext()
