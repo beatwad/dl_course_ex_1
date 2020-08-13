@@ -13,7 +13,7 @@ def check_array_size(array):
     return 1
 
 
-def softmax(predictions):
+def softmax(predictions, batch_size=1):
     """
     Computes probabilities from scores
 
@@ -25,7 +25,10 @@ def softmax(predictions):
       probs, np array of the same shape as predictions - 
         probability for every class, 0..1
     """
-
+    if batch_size == 1:
+        norm_predictions = predictions - np.max(predictions)
+        exp_array = np.exp(norm_predictions)
+        return exp_array / np.sum(exp_array)
     norm_predictions = predictions - np.amax(predictions, axis=1)[:, None]
     exp_array = np.exp(norm_predictions)
     return exp_array/np.sum(exp_array, axis=1)[:, None]
@@ -46,13 +49,11 @@ def cross_entropy_loss(probs, target_index, batch_size=1, num_classes=1):
     """
 
     mask_array = np.zeros((batch_size, num_classes), dtype=int)
-    # print(f'Probs\n{probs}')
-    # print(f'Target Index\n{target_index}')
-    for i in range(mask_array.shape[0]):
+    ce_loss = np.zeros(batch_size, dtype=np.float)
+    for i in range(batch_size):
         mask_array[i, target_index[i]] = 1
-    # print(f'Mask Array\n{mask_array}')
-    ce_loss = -np.sum(mask_array * np.log(probs), axis=1)
-    # print(f'CE_Loss\n{ce_loss}')
+    for i in range(batch_size):
+        ce_loss[i] = -np.sum(mask_array[i] * np.log(probs[i]))
     return np.average(ce_loss)
 
 
@@ -72,19 +73,14 @@ def softmax_with_cross_entropy(predictions, target_index, batch_size=1, num_clas
       dprediction, np array same shape as predictions - gradient of predictions by loss value
     """
 
-    probs = softmax(predictions)
-    # print(f'Probs\n{probs}')
+    probs = softmax(predictions, batch_size)
     loss = cross_entropy_loss(probs, target_index, batch_size, num_classes)
-    # print(f'CE Loss\n{loss}')
     target_array = np.zeros((batch_size, num_classes), dtype=int)
-    # print(f'Target index\n{target_index}')
 
     for i in range(target_array.shape[0]):
         target_array[i, target_index[i]] = 1
-    # print(f'Target array\n{target_array}')
 
-    dprediction = probs - target_array
-    # print(f'Dprediction\n{dprediction}')
+    dprediction = (probs - target_array)/batch_size
     return loss, dprediction
 
 
