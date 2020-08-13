@@ -76,13 +76,10 @@ def l2_regularization(W, reg_strength):
       loss, single value - l2 regularization loss
       gradient, np.array same shape as W - gradient of weight by l2 loss
     """
-
-    # TODO: implement l2 regularization and gradient
-    # Your final implementation shouldn't have any loops
-    raise Exception("Not implemented!")
-
+    loss = reg_strength*np.sum(W**2)
+    grad = 2*reg_strength*W
     return loss, grad
-    
+
 
 def linear_softmax(X, W, target_index):
     """
@@ -120,7 +117,6 @@ class LinearSoftmaxClassifier():
           reg, float - L2 regularization strength
           epochs, int - number of epochs
         '''
-
         num_train = X.shape[0]
         num_features = X.shape[1]
         num_classes = np.max(y)+1
@@ -133,17 +129,16 @@ class LinearSoftmaxClassifier():
             np.random.shuffle(shuffled_indices)
             sections = np.arange(batch_size, num_train, batch_size)
             batches_indices = np.array_split(shuffled_indices, sections)
-
-            # TODO implement generating batches from indices
-            # Compute loss and gradients
-            # Apply gradient to weights using learning rate
-            # Don't forget to add both cross-entropy loss
-            # and regularization!
-            raise Exception("Not implemented!")
-
-            # end
+            batch_num = np.random.randint(len(batches_indices))
+            batch_idx = batches_indices[batch_num]
+            batch = X[batch_idx, :]
+            ls_loss, ls_grad = linear_softmax(batch, self.W, y)
+            reg_loss, reg_grad = l2_regularization(self.W, reg)
+            loss = ls_loss + reg_loss
+            grad = ls_grad + reg_grad
+            self.W -= learning_rate*grad*loss
+            loss_history.append(loss)
             print("Epoch %i, loss: %f" % (epoch, loss))
-
         return loss_history
 
     def predict(self, X):
@@ -156,19 +151,6 @@ class LinearSoftmaxClassifier():
         Returns:
           y_pred, np.array of int (test_samples)
         '''
-        y_pred = np.zeros(X.shape[0], dtype=np.int)
-
-        # TODO Implement class prediction
-        # Your final implementation shouldn't have any loops
-        raise Exception("Not implemented!")
-
+        prediciton = np.dot(X, self.W)
+        y_pred = prediciton.argmax(axis=1)
         return y_pred
-
-
-
-                
-                                                          
-
-            
-
-                
