@@ -65,7 +65,7 @@ def softmax_with_cross_entropy(predictions, target_index):
 
 
 def l2_regularization(W, reg_strength):
-    '''
+    """
     Computes L2 regularization loss on weights and its gradient
 
     Arguments:
@@ -75,7 +75,7 @@ def l2_regularization(W, reg_strength):
     Returns:
       loss, single value - l2 regularization loss
       gradient, np.array same shape as W - gradient of weight by l2 loss
-    '''
+    """
 
     # TODO: implement l2 regularization and gradient
     # Your final implementation shouldn't have any loops
@@ -85,7 +85,7 @@ def l2_regularization(W, reg_strength):
     
 
 def linear_softmax(X, W, target_index):
-    '''
+    """
     Performs linear classification and returns loss and gradient over W
 
     Arguments:
@@ -96,14 +96,10 @@ def linear_softmax(X, W, target_index):
     Returns:
       loss, single value - cross-entropy loss
       gradient, np.array same shape as W - gradient of weight by loss
-
-    '''
+    """
     predictions = np.dot(X, W)
-
-    # TODO implement prediction and gradient over W
-    # Your final implementation shouldn't have any loops
-    raise Exception("Not implemented!")
-    
+    loss, dprediction = softmax_with_cross_entropy(predictions, target_index)
+    dW = np.dot(X.T, dprediction)
     return loss, dW
 
 
